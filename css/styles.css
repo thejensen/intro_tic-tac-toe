@@ -1,0 +1,20 @@
+body {
+  text-align: center;
+}
+
+.jumbotron, .container {
+  width: 100%;
+  text-align: center;
+}
+
+td {
+  width: 200px;
+  height: 200px;
+  text-align: center;
+}
+
+
+.table-bordered {
+  margin-left: auto;
+  margin-right: auto;
+}
