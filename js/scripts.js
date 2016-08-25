@@ -14,20 +14,17 @@ Board.prototype.setCharacter = function(char, row, col){
 Board.prototype.winner = function() {
 	var score = 0;
 	for (var i = 0; i < 3; i++) {
-	  score = ColumnChecker(this.boardArray, i);
-    if (ScoreCheck(score) !== "") {
-			console.log(ScoreCheck(score));
-    	return ScoreCheck(score);
+	  score = ColumnRowChecker(this.boardArray, i, 'col');
+    if (WinCheck(score) !== "") {
+    	return WinCheck(score);
     }
-    score = RowChecker(this.boardArray, i);
-    if (ScoreCheck(score) !== "") {
-			console.log(ScoreCheck(score));
-    	return ScoreCheck(score);
+    score = ColumnRowChecker(this.boardArray, i, 'row');
+    if (WinCheck(score) !== "") {
+    	return WinCheck(score);
     }
 		score = DiagonalChecker(this.boardArray, i);
-    if (ScoreCheck(score) !== "") {
-			console.log(ScoreCheck(score));
-    	return ScoreCheck(score);
+    if (WinCheck(score) !== "") {
+    	return WinCheck(score);
     }
   }
   return "";
@@ -53,27 +50,26 @@ function DiagonalChecker(boardArray, direction) {
 	}
 	return sum;
 }
-function ColumnChecker(boardArray, col) {
+function ColumnRowChecker(boardArray, barIndex, barType) {
 	var sum = 0;
-  for (var i = 0; i < 3; i++) {
-  	if (boardArray[i][col] == 'x')
-    	sum += 1;
-    else if(boardArray[i][col] == 'o')
-    	sum += 10;
-  }
+	if (barType == "col") {
+	  for (var i = 0; i < 3; i++) {
+	  	if (boardArray[i][barIndex] == 'x')
+	    	sum += 1;
+	    else if(boardArray[i][barIndex] == 'o')
+	    	sum += 10;
+	  }
+	} else if (barType == "row") {
+		for (var i = 0; i < 3; i++) {
+	  	if (boardArray[barIndex][i] == 'x')
+	    	sum += 1;
+	    else if(boardArray[barIndex][i] == 'o')
+	    	sum += 10;
+	  }
+	}
   return sum;
 }
-function RowChecker(boardArray, row) {
-	var sum = 0;
-  for (var i = 0; i < 3; i++) {
-  	if (boardArray[row][i] == 'x')
-    	sum += 1;
-    else if(boardArray[row][i] == 'o')
-    	sum += 10;
-  }
-  return sum;
-}
-function ScoreCheck(score) {
+function WinCheck(score) {
 	if (score == 30) {
     	return 'o';
   } else if (score == 3) {
@@ -83,29 +79,35 @@ function ScoreCheck(score) {
   }
 }
 
-
 // UI Logic
 $(document).ready(function() {
 	var newBoard = new Board();
-  $('td.row0').click(function() {
-		var colInput = $(this).index();
-		$(this).text(newBoard.currentPlayer);
-		newBoard.setCharacter(newBoard.currentPlayer,0,colInput);
-		$("span#current-player").text(newBoard.currentPlayer.toUpperCase());
-		newBoard.winner();
+ 	var turnCount = 0;
+  $('td').click(function() {
+		$(this).parent().index();
+		if (newBoard.winner() == "") {
+			var colIndex = $(this).index();
+			var rowIndex = $(this).parent().index();
+			if (newBoard.boardArray[rowIndex][colIndex] == "") {
+				turnCount += 1;
+				$(this).text(newBoard.currentPlayer);
+				newBoard.setCharacter(newBoard.currentPlayer,rowIndex,colIndex);
+				$("span#current-player").text(newBoard.currentPlayer.toUpperCase());
+				if (newBoard.winner() != "") {
+					$('.winner-banner').show();
+					$('.btn').show();
+					$('#winner').text(newBoard.winner().toUpperCase());
+					$('#player-turn').hide();
+				}
+				else if (turnCount == 9 && newBoard.winner() == "") {
+					$('.cats-banner').show();
+					$('#player-turn').hide();
+					$('.btn').show();
+				}
+			}
+		}
   });
-	$('td.row1').click(function() {
-		var colInput = $(this).index();
-		$(this).text(newBoard.currentPlayer);
-		newBoard.setCharacter(newBoard.currentPlayer,1,colInput);
-		$("span#current-player").text(newBoard.currentPlayer.toUpperCase());
-		newBoard.winner();
-	});
-	$('td.row2').click(function() {
-		var colInput = $(this).index();
-		$(this).text(newBoard.currentPlayer);
-		newBoard.setCharacter(newBoard.currentPlayer,2,colInput);
-		$("span#current-player").text(newBoard.currentPlayer.toUpperCase());
-		newBoard.winner();
+	$('.btn').click(function(){
+		document.location.reload();
 	});
 });
