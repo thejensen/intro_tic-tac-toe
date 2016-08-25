@@ -15,15 +15,19 @@ Board.prototype.setCharacter = function(char, row, col){
 Board.prototype.winner = function() {
 	var score = 0;
 	for (var i = 0; i < 3; i++) {
-	  score = ColumnRowChecker(this.boardArray, i, 'col');
+	  score = SpaceChecker(this.boardArray, i, 'col');
     if (WinCheck(score) !== "") {
     	return WinCheck(score);
     }
-    score = ColumnRowChecker(this.boardArray, i, 'row');
+    score = SpaceChecker(this.boardArray, i, 'row');
     if (WinCheck(score) !== "") {
     	return WinCheck(score);
     }
-		score = DiagonalChecker(this.boardArray, i);
+		score = SpaceChecker(this.boardArray, i, 'diagRight');
+    if (WinCheck(score) !== "") {
+    	return WinCheck(score);
+    }
+		score = SpaceChecker(this.boardArray, i, 'diagLeft');
     if (WinCheck(score) !== "") {
     	return WinCheck(score);
     }
@@ -33,42 +37,28 @@ Board.prototype.winner = function() {
 Board.prototype.AIMove = function() {
 	// Checks for winning moves and blocks or wins!
 	for (var i = 0; i < 3; i++) {
-		if (this.ColumnRowChecker(this.boardArray, i, 'col') == 2)
-
-		else if (this.ColumnRowChecker(this.boardArray, i, 'col') == 20)
-			// Winning move
-		else if (this.ColumnRowChecker(this.boardArray, i, 'row') == 2)
-			// blocking move
-		else if (this.ColumnRowChecker(this.boardArray, i, 'row') == 20)
-			// Winning move
-		else if (this.ColumnRowChecker(this.boardArray, i) == 2)
-			// blocking move
-		else if (this.ColumnRowChecker(this.boardArray, i) == 20)
-			// Winning move
-	}
-}
-function DiagonalChecker(boardArray, direction) {
-	var sum = 0;
-	if (direction == 0) {
-		for (var i = 0; i < 3; i++) {
-			if(boardArray[i][i] == "x")
-				sum += 1;
-			else if (boardArray[i][i] == "o")
-				sum += 10;
-		}
-	} else if (direction == 1) {
-		var j = 2;
-		for (var i = 0; i < 3; i++) {
-			if(boardArray[i][j] == "x")
-				sum += 1;
-			else if (boardArray[i][j] == "o")
-				sum += 10;
-			j--;
+		if (SpaceChecker(this.boardArray, i, 'col') == 20)
+			return MoveMaker(this, i, 'col');
+		else if (SpaceChecker(this.boardArray, i, 'row') == 20)
+			return MoveMaker(this, i, 'row');
+		else if (SpaceChecker(this.boardArray, i, "diagRight") == 20)
+			return MoveMaker(this, i, 'diagRight');
+		else if (SpaceChecker(this.boardArray, i, "diagLeft") == 20)
+			return MoveMaker(this, i, 'diagLeft');
+		else if (SpaceChecker(this.boardArray, i, 'col') == 2)
+			return MoveMaker(this, i, 'col');
+		else if (SpaceChecker(this.boardArray, i, 'row') == 2)
+			return MoveMaker(this, i, 'row');
+		else if (SpaceChecker(this.boardArray, i, "diagRight") == 2)
+			return MoveMaker(this, i, 'diagRight');
+		else if (SpaceChecker(this.boardArray, i, "diagLeft") == 2)
+			return MoveMaker(this, i, 'diagLeft');
+		else {
+			return ["", ""];
 		}
 	}
-	return sum;
 }
-function ColumnRowChecker(boardArray, barIndex, barType) {
+function SpaceChecker(boardArray, barIndex, barType) {
 	var sum = 0;
 	if (barType == "col") {
 	  for (var i = 0; i < 3; i++) {
@@ -84,6 +74,22 @@ function ColumnRowChecker(boardArray, barIndex, barType) {
 	    else if(boardArray[barIndex][i] == 'o')
 	    	sum += 10;
 	  }
+	} else if (barType == 'diagRight') {
+		for (var i = 0; i < 3; i++) {
+			if(boardArray[i][i] == "x")
+				sum += 1;
+			else if (boardArray[i][i] == "o")
+				sum += 10;
+		}
+	} else if (barType == "diagLeft") {
+		var j = 2;
+		for (var i = 0; i < 3; i++) {
+			if(boardArray[i][j] == "x")
+				sum += 1;
+			else if (boardArray[i][j] == "o")
+				sum += 10;
+			j--;
+		}
 	}
   return sum;
 }
@@ -96,38 +102,104 @@ function WinCheck(score) {
   	return "";
   }
 }
-function ColumnRowMoveMaker(boardObject, barIndex, barType) {
-	// cols
-	for (var i = 0; i < 3; i++) {
-		if (boardObject.boardArray[barIndex][i] == '')
-			boardObject.setCharacter('o', i, barIndex);
+function MoveMaker(boardObject, barIndex, barType) {
+	if (barType == 'col') {
+		for (var i = 0; i < 3; i++) {
+			console.log(boardObject.boardArray[i][barIndex] + "hey");
+			if (boardObject.boardArray[i][barIndex] == '') {
+				boardObject.setCharacter('o', i, barIndex);
+				return [i, barIndex];
+			}
+		}
+	} else if (barType == 'row') {
+		for (var i = 0; i < 3; i++) {
+			if (boardObject.boardArray[barIndex][i] == '') {
+				boardObject.setCharacter('o', barIndex, i);
+				return [barIndex, i];
+			}
+		}
+	} else if (barType == "diagRight") {
+		for (var i = 0; i < 3; i++) {
+			if(boardObject.boardArray[i][i] == "") {
+				boardObject.setCharacter('o', i, i);
+				return [i, i];
+			}
+		}
+	}	else if (barType == "diagLeft") {
+		var j = 2;
+		for (var i = 0; i < 3; i++) {
+			if(boardObject.boardArray[i][j] == "") {
+				boardObject.setCharacter('o', i, j);
+				return [i, j];
+			}
+			j--;
+		}
 	}
-	// rows
 }
 
 // UI Logic
 $(document).ready(function() {
 	var newBoard = new Board();
   $('td').click(function() {
-		$(this).parent().index();
-		if (newBoard.winner() == "") {
-			var colIndex = $(this).index();
-			var rowIndex = $(this).parent().index();
-			if (newBoard.boardArray[rowIndex][colIndex] == "") {
-				newBoard.turnCount += 1;
-				$(this).text(newBoard.currentPlayer);
-				newBoard.setCharacter(newBoard.currentPlayer,rowIndex,colIndex);
-				$("span#current-player").text(newBoard.currentPlayer.toUpperCase());
-				if (newBoard.winner() != "") {
-					$('.winner-banner').show();
-					$('.btn').show();
-					$('#winner').text(newBoard.winner().toUpperCase());
-					$('#player-turn').hide();
+		if (false) {
+			if (newBoard.winner() == "") {
+				var colIndex = $(this).index();
+				var rowIndex = $(this).parent().index();
+				if (newBoard.boardArray[rowIndex][colIndex] == "") {
+					newBoard.turnCount += 1;
+					$(this).text(newBoard.currentPlayer);
+					newBoard.setCharacter(newBoard.currentPlayer,rowIndex,colIndex);
+					$("span#current-player").text(newBoard.currentPlayer.toUpperCase());
+					if (newBoard.winner() != "") {
+						$('.winner-banner').show();
+						$('.btn').show();
+						$('#winner').text(newBoard.winner().toUpperCase());
+						$('#player-turn').hide();
+					}
+					else if (newBoard.turnCount == 9 && newBoard.winner() == "") {
+						$('.cats-banner').show();
+						$('#player-turn').hide();
+						$('.btn').show();
+					}
 				}
-				else if (turnCount == 9 && newBoard.winner() == "") {
-					$('.cats-banner').show();
-					$('#player-turn').hide();
-					$('.btn').show();
+			}
+		}
+  });
+	$('td').click(function() {
+		if (true) {
+			if (newBoard.winner() == "") {
+				var colIndex = $(this).index();
+				var rowIndex = $(this).parent().index();
+				if (newBoard.boardArray[rowIndex][colIndex] == "") {
+					newBoard.turnCount += 1;
+					$(this).text(newBoard.currentPlayer);
+					newBoard.setCharacter(newBoard.currentPlayer,rowIndex,colIndex);
+					console.log(newBoard.boardArray[rowIndex][colIndex]);
+					if (newBoard.winner() != "") {
+						$('.winner-banner').show();
+						$('.btn').show();
+						$('#winner').text(newBoard.winner().toUpperCase());
+						$('#player-turn').hide();
+					}
+					else if (newBoard.turnCount == 9 && newBoard.winner() == "") {
+						$('.cats-banner').show();
+						$('#player-turn').hide();
+						$('.btn').show();
+					} else {
+						var aiMove = newBoard.AIMove();
+						$('#r' + aiMove[0] + '-c' + aiMove[1]).text('O');
+						if (newBoard.winner() != "") {
+							$('.winner-banner').show();
+							$('.btn').show();
+							$('#winner').text(newBoard.winner().toUpperCase());
+							$('#player-turn').hide();
+						}
+						else if (newBoard.turnCount == 9 && newBoard.winner() == "") {
+							$('.cats-banner').show();
+							$('#player-turn').hide();
+							$('.btn').show();
+						}
+					}
 				}
 			}
 		}
