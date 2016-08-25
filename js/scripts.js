@@ -1,7 +1,8 @@
 // Business Logic
 function Board(){
 	this.boardArray = [["","",""],["","",""],["","",""]];
-  this.currentPlayer = 'x';
+  this.currentPlayer = 'x'; // Marks who's turn it is
+	this.turnCount = 0; // Counts the amount of turns that have already occurred
 }
 Board.prototype.setCharacter = function(char, row, col){
   this.boardArray[row][col] = char;
@@ -28,6 +29,23 @@ Board.prototype.winner = function() {
     }
   }
   return "";
+}
+Board.prototype.AIMove = function() {
+	// Checks for winning moves and blocks or wins!
+	for (var i = 0; i < 3; i++) {
+		if (this.ColumnRowChecker(this.boardArray, i, 'col') == 2)
+
+		else if (this.ColumnRowChecker(this.boardArray, i, 'col') == 20)
+			// Winning move
+		else if (this.ColumnRowChecker(this.boardArray, i, 'row') == 2)
+			// blocking move
+		else if (this.ColumnRowChecker(this.boardArray, i, 'row') == 20)
+			// Winning move
+		else if (this.ColumnRowChecker(this.boardArray, i) == 2)
+			// blocking move
+		else if (this.ColumnRowChecker(this.boardArray, i) == 20)
+			// Winning move
+	}
 }
 function DiagonalChecker(boardArray, direction) {
 	var sum = 0;
@@ -78,18 +96,25 @@ function WinCheck(score) {
   	return "";
   }
 }
+function ColumnRowMoveMaker(boardObject, barIndex, barType) {
+	// cols
+	for (var i = 0; i < 3; i++) {
+		if (boardObject.boardArray[barIndex][i] == '')
+			boardObject.setCharacter('o', i, barIndex);
+	}
+	// rows
+}
 
 // UI Logic
 $(document).ready(function() {
 	var newBoard = new Board();
- 	var turnCount = 0;
   $('td').click(function() {
 		$(this).parent().index();
 		if (newBoard.winner() == "") {
 			var colIndex = $(this).index();
 			var rowIndex = $(this).parent().index();
 			if (newBoard.boardArray[rowIndex][colIndex] == "") {
-				turnCount += 1;
+				newBoard.turnCount += 1;
 				$(this).text(newBoard.currentPlayer);
 				newBoard.setCharacter(newBoard.currentPlayer,rowIndex,colIndex);
 				$("span#current-player").text(newBoard.currentPlayer.toUpperCase());
